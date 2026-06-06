@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * memberships and:</p>
  *
  * <ul>
- *   <li><b>0 orgs</b> — passes through (no org context needed)</li>
+ *   <li><b>0 orgs</b> — denies access (user must belong to at least one organization)</li>
  *   <li><b>1 org</b> — auto-selects, no picker shown</li>
  *   <li><b>2+ orgs</b> — renders {@code select-organization.ftl} for the user to pick</li>
  * </ul>
@@ -75,7 +75,7 @@ public class SelectOrganizationAuthenticator implements Authenticator {
                 .collect(Collectors.toList());
 
         if (orgs.isEmpty()) {
-            context.success();
+            context.failure(AuthenticationFlowError.ACCESS_DENIED);
             return;
         }
 

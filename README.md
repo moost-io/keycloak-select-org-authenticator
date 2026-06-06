@@ -10,7 +10,7 @@ When added to a browser authentication flow (after credential/OTP verification):
 
 | User's Orgs | Behavior |
 |-------------|----------|
-| 0 | Passes through — no org context set |
+| 0 | Denies access — user must belong to at least one organization |
 | 1 | Auto-selects the single org silently |
 | 2+ | Renders an org picker page for the user to choose |
 
