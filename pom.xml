@@ -6,7 +6,7 @@
 
     <groupId>io.github.revspot</groupId>
     <artifactId>keycloak-select-org-authenticator</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>Keycloak Select Organization Authenticator</name>
@@ -25,9 +25,9 @@
     </licenses>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <keycloak.version>26.0.7</keycloak.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <keycloak.version>26.6.0</keycloak.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

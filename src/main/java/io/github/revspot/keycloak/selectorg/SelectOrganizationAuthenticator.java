@@ -17,6 +17,7 @@ package io.github.revspot.keycloak.selectorg;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
@@ -50,6 +51,8 @@ import java.util.stream.Collectors;
  */
 public class SelectOrganizationAuthenticator implements Authenticator {
 
+    private final static Logger log = Logger.getLogger(SelectOrganizationAuthenticator.class);
+
     @Override
     public void authenticate(AuthenticationFlowContext context) {
         UserModel user = context.getUser();
@@ -60,12 +63,14 @@ public class SelectOrganizationAuthenticator implements Authenticator {
 
         RealmModel realm = context.getRealm();
         if (!realm.isOrganizationsEnabled()) {
+            log.info("No organization enabled");
             context.success();
             return;
         }
 
         OrganizationProvider orgProvider = context.getSession().getProvider(OrganizationProvider.class);
         if (orgProvider == null) {
+            log.info("No organization provider found");
             context.success();
             return;
         }
@@ -73,6 +78,7 @@ public class SelectOrganizationAuthenticator implements Authenticator {
         List<OrganizationModel> orgs = orgProvider.getByMember(user)
                 .filter(OrganizationModel::isEnabled)
                 .collect(Collectors.toList());
+        log.info("User " + user.getUsername() + " is assigned to organizations: " + orgs.stream().map(OrganizationModel::getName).collect(Collectors.joining(", ")));
 
         if (orgs.isEmpty()) {
             context.failure(AuthenticationFlowError.ACCESS_DENIED);
@@ -135,7 +141,7 @@ public class SelectOrganizationAuthenticator implements Authenticator {
         form.setAttribute("organizations", orgBeans);
         form.setAttribute("username", user.getEmail() != null ? user.getEmail() : user.getUsername());
 
-        Response challenge = form.createForm("select-organization.ftl");
+        Response challenge = form.createForm("select-organization-post-auth.ftl");
         context.challenge(challenge);
     }
 

@@ -83,9 +83,9 @@ Browser Flow:
 
 ## Template
 
-The plugin includes a default `select-organization.ftl` template (bundled via `theme-resources/templates/`). It works with any Keycloak theme out of the box.
+The plugin includes a default `select-organization-post-auth.ftl` template (bundled via `theme-resources/templates/`). It works with any Keycloak theme out of the box.
 
-To customize the picker UI, create `select-organization.ftl` in your own theme's `login/` directory. The authenticator passes these template attributes:
+To customize the picker UI, create `select-organization-post-auth.ftl` in your own theme's `login/` directory. The authenticator passes these template attributes:
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -106,11 +106,11 @@ Each `OrgBean` exposes:
 ## Compatibility
 
 | Keycloak Version | Status |
-|-----------------|--------|
-| 26.0.7 | Tested |
-| 26.x | Should work |
-| 25.x | Untested (Organizations API may differ) |
-| 27.x | Should work |
+|------------------|--------|
+| 26.6.0           | Tested |
+| 26.x             | Should work |
+| 25.x             | Untested (Organizations API may differ) |
+| 27.x             | Should work |
 
 ## License
 
