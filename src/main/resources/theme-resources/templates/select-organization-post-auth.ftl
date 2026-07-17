@@ -25,7 +25,7 @@
                     </#list>
                 </ul>
             </div>
-            <input type=" hidden" name="kc.org"/>
+            <input type="hidden" name="kc.org"/>
         </form>
     </#if>
 </@layout.registrationLayout>
