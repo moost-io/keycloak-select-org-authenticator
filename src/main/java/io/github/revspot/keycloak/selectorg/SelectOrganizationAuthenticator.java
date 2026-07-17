@@ -51,7 +51,8 @@ import java.util.stream.Collectors;
  */
 public class SelectOrganizationAuthenticator implements Authenticator {
 
-    private final static Logger log = Logger.getLogger(SelectOrganizationAuthenticator.class);
+    private static final Logger log = Logger.getLogger(SelectOrganizationAuthenticator.class);
+    private static final String ORG_ATTRIBUTE_LOGO_URL = "logoUrl";
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
@@ -135,7 +136,7 @@ public class SelectOrganizationAuthenticator implements Authenticator {
         LoginFormsProvider form = context.form();
 
         List<OrgBean> orgBeans = orgs.stream()
-                .map(o -> new OrgBean(o.getName(), o.getAlias()))
+                .map(o -> new OrgBean(o.getName(), o.getAlias(), getLogoUrl(o)))
                 .collect(Collectors.toList());
 
         form.setAttribute("organizations", orgBeans);
@@ -143,6 +144,11 @@ public class SelectOrganizationAuthenticator implements Authenticator {
 
         Response challenge = form.createForm("select-organization-post-auth.ftl");
         context.challenge(challenge);
+    }
+
+    private static String getLogoUrl(OrganizationModel o) {
+        List<String> logoUrl = o.getAttributes().get(ORG_ATTRIBUTE_LOGO_URL);
+        return logoUrl != null && !logoUrl.isEmpty() && !logoUrl.getFirst().trim().isEmpty() ? logoUrl.getFirst() : null;
     }
 
     @Override
@@ -171,10 +177,12 @@ public class SelectOrganizationAuthenticator implements Authenticator {
     public static class OrgBean {
         private final String name;
         private final String alias;
+        private final String logoUrl;
 
-        public OrgBean(String name, String alias) {
+        public OrgBean(String name, String alias, String logoUrl) {
             this.name = name;
             this.alias = alias;
+            this.logoUrl = logoUrl;
         }
 
         public String getName() {
@@ -183,6 +191,10 @@ public class SelectOrganizationAuthenticator implements Authenticator {
 
         public String getAlias() {
             return alias;
+        }
+
+        public String getLogoUrl() {
+            return logoUrl;
         }
     }
 }
