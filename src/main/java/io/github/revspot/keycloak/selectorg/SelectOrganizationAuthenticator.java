@@ -137,6 +137,7 @@ public class SelectOrganizationAuthenticator implements Authenticator {
 
         List<OrgBean> orgBeans = orgs.stream()
                 .map(o -> new OrgBean(o.getName(), o.getAlias(), getLogoUrl(o)))
+                .sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
                 .collect(Collectors.toList());
 
         form.setAttribute("organizations", orgBeans);
