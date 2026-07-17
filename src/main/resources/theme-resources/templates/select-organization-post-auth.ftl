@@ -5,11 +5,11 @@
             <div id="kc-user-organizations" class="${properties.kcFormGroupClass!}">
                 <h2>${msg("organization.select")}</h2>
 
-                <ul class="${properties.kcFormSocialAccountListClass!} <#if user.organizations?size gt 3>${properties.kcFormSocialAccountListGridClass!}</#if>">
+                <ul class="${properties.kcFormSocialAccountListClass!} <#if organizations?size gt 3>${properties.kcFormSocialAccountListGridClass!}</#if>">
                     <#list organizations as organization>
                         <li>
                             <a id="organization-${organization.alias}"
-                               class="${properties.kcFormSocialAccountListButtonClass!} <#if user.organizations?size gt 3>${properties.kcFormSocialAccountGridItem!}</#if>"
+                               class="${properties.kcFormSocialAccountListButtonClass!} <#if organizations?size gt 3>${properties.kcFormSocialAccountGridItem!}</#if>"
                                type="button"
                                onclick="document.forms[0]['kc.org'].value='${organization.alias}';document.forms[0].requestSubmit()">
                                 <#if organization.logoUrl??>
