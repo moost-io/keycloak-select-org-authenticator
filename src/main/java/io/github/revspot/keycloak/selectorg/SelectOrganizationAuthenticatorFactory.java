@@ -26,11 +26,12 @@ import org.keycloak.provider.ProviderConfigProperty;
 import java.util.Collections;
 import java.util.List;
 
+import static org.keycloak.provider.ProviderConfigProperty.BOOLEAN_TYPE;
+
 public class SelectOrganizationAuthenticatorFactory implements AuthenticatorFactory {
 
     public static final String PROVIDER_ID = "select-organization";
-
-    private static final SelectOrganizationAuthenticator INSTANCE = new SelectOrganizationAuthenticator();
+    public static final String REQUIRES_USER_MEMBERSHIP = "requiresUserMembership";
 
     @Override
     public String getId() {
@@ -64,21 +65,18 @@ public class SelectOrganizationAuthenticatorFactory implements AuthenticatorFact
 
     @Override
     public AuthenticationExecutionModel.Requirement[] getRequirementChoices() {
-        return new AuthenticationExecutionModel.Requirement[]{
-                AuthenticationExecutionModel.Requirement.REQUIRED,
-                AuthenticationExecutionModel.Requirement.ALTERNATIVE,
-                AuthenticationExecutionModel.Requirement.DISABLED,
-        };
+        return REQUIREMENT_CHOICES;
+    }
+
+
+    @Override
+    public Authenticator create(KeycloakSession session) {
+        return new SelectOrganizationAuthenticator();
     }
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Authenticator create(KeycloakSession session) {
-        return INSTANCE;
+        return Collections.singletonList(new ProviderConfigProperty(REQUIRES_USER_MEMBERSHIP, "Requires user membership", "Enforces that users authenticating in the scope of an organization are members. If not a member, the user won't be able to proceed authenticating to the realm", BOOLEAN_TYPE, null));
     }
 
     @Override
