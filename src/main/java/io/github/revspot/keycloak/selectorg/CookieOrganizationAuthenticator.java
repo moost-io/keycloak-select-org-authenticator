@@ -6,16 +6,16 @@ import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorUtil;
 import org.keycloak.authentication.authenticators.util.AcrStore;
 import org.keycloak.authentication.authenticators.util.AuthenticatorUtils;
-import org.keycloak.models.Constants;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
+import org.keycloak.organization.OrganizationProvider;
 import org.keycloak.organization.protocol.mappers.oidc.OrganizationScope;
 import org.keycloak.organization.utils.Organizations;
 import org.keycloak.protocol.LoginProtocol;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.messages.Messages;
 import org.keycloak.sessions.AuthenticationSessionModel;
+
+import java.util.stream.Collectors;
 
 /**
  * Derived from org.keycloak.authentication.authenticators.browser.CookieAuthenticatorFactory
@@ -81,8 +81,17 @@ public class CookieOrganizationAuthenticator implements Authenticator {
 
                     if (isOrganizationContext(context)) {
                         // Remark: original CookieAuthenticator would trigger re-authentication - this is the relevant change here
-                        log.info("SUCCESS: authentication for organization context ok");
-                        context.success();
+                        log.info("Prev session notes: " + authResult.session().getNotes().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(", ")));
+                        String previousOrg = authResult.session().getNote("kc.org");
+                        if (previousOrg != null) {
+                            authSession.setAuthNote("kc.org", previousOrg);
+                            authSession.setClientNote("kc.org", previousOrg);
+                            log.info("SUCCESS: authentication for organization context ok");
+                            context.success();
+                        } else {
+                            log.info("ATTEMPTED: authentication for organization context failed, no previous org found");
+                            context.attempted();
+                        }
                     } else {
                         log.info("SUCCESS: authentication ok");
                         context.success();
