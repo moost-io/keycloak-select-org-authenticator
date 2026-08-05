@@ -30,22 +30,30 @@ import static org.keycloak.provider.ProviderConfigProperty.BOOLEAN_TYPE;
 
 public class SelectOrganizationAuthenticatorFactory implements AuthenticatorFactory {
 
-    public static final String PROVIDER_ID = "select-organization";
-    public static final String REQUIRES_USER_MEMBERSHIP = "requiresUserMembership";
+    private static final String PROVIDER_ID = "select-organization";
+    private static final SelectOrganizationAuthenticator SINGLETON = new SelectOrganizationAuthenticator();
+    private static final String REQUIRES_USER_MEMBERSHIP = "requiresUserMembership";
+
+    @Override
+    public Authenticator create(KeycloakSession session) {
+        return SINGLETON;
+    }
+
+    @Override
+    public void init(Config.Scope config) {
+    }
+
+    @Override
+    public void postInit(KeycloakSessionFactory factory) {
+    }
+
+    @Override
+    public void close() {
+    }
 
     @Override
     public String getId() {
         return PROVIDER_ID;
-    }
-
-    @Override
-    public String getDisplayType() {
-        return "Select Organization (Post-Auth)";
-    }
-
-    @Override
-    public String getHelpText() {
-        return "Shows an organization picker after authentication for users in multiple organizations.";
     }
 
     @Override
@@ -59,19 +67,18 @@ public class SelectOrganizationAuthenticatorFactory implements AuthenticatorFact
     }
 
     @Override
-    public boolean isUserSetupAllowed() {
-        return false;
-    }
-
-    @Override
     public AuthenticationExecutionModel.Requirement[] getRequirementChoices() {
         return REQUIREMENT_CHOICES;
     }
 
+    @Override
+    public String getDisplayType() {
+        return "Select Organization (Post-Auth)";
+    }
 
     @Override
-    public Authenticator create(KeycloakSession session) {
-        return new SelectOrganizationAuthenticator();
+    public String getHelpText() {
+        return "Shows an organization picker after authentication for users in multiple organizations.";
     }
 
     @Override
@@ -80,14 +87,7 @@ public class SelectOrganizationAuthenticatorFactory implements AuthenticatorFact
     }
 
     @Override
-    public void init(Config.Scope config) {
-    }
-
-    @Override
-    public void postInit(KeycloakSessionFactory factory) {
-    }
-
-    @Override
-    public void close() {
+    public boolean isUserSetupAllowed() {
+        return false;
     }
 }

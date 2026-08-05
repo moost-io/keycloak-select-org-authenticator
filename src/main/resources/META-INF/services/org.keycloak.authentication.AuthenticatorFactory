@@ -1,1 +1,2 @@
 io.github.revspot.keycloak.selectorg.SelectOrganizationAuthenticatorFactory
+io.github.revspot.keycloak.selectorg.CookieOrganizationAuthenticatorFactory
