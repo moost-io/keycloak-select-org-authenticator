@@ -23,12 +23,12 @@ import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.OrganizationModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.models.OrganizationModel;
 import org.keycloak.organization.OrganizationProvider;
-import org.keycloak.sessions.AuthenticationSessionModel;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,7 +87,8 @@ public class SelectOrganizationAuthenticator implements Authenticator {
         }
 
         if (orgs.size() == 1) {
-            setSelectedOrganization(context, orgs.get(0));
+            OrganizationModel selectedOrg = orgs.get(0);
+            OrganizationSessionHelper.setSelectedOrganization(context, selectedOrg.getId(), selectedOrg.getName());
             context.success();
             return;
         }
@@ -109,26 +110,19 @@ public class SelectOrganizationAuthenticator implements Authenticator {
         UserModel user = context.getUser();
         OrganizationProvider orgProvider = context.getSession().getProvider(OrganizationProvider.class);
 
-        OrganizationModel selected = orgProvider.getByMember(user)
+        OrganizationModel selectedOrg = orgProvider.getByMember(user)
                 .filter(OrganizationModel::isEnabled)
                 .filter(org -> selectedOrgAlias.equals(org.getAlias()) || selectedOrgAlias.equals(org.getName()))
                 .findFirst()
                 .orElse(null);
 
-        if (selected == null) {
+        if (selectedOrg == null) {
             context.failure(AuthenticationFlowError.ACCESS_DENIED);
             return;
         }
 
-        setSelectedOrganization(context, selected);
+        OrganizationSessionHelper.setSelectedOrganization(context, selectedOrg.getId(), selectedOrg.getName());
         context.success();
-    }
-
-    private void setSelectedOrganization(AuthenticationFlowContext context, OrganizationModel org) {
-        AuthenticationSessionModel authSession = context.getAuthenticationSession();
-        authSession.setAuthNote("kc.org", org.getId());
-        authSession.setClientNote("kc.org", org.getId());
-        authSession.setAuthNote("kc.org.name", org.getName());
     }
 
     private void showOrgPicker(AuthenticationFlowContext context, UserModel user,
@@ -137,7 +131,7 @@ public class SelectOrganizationAuthenticator implements Authenticator {
 
         List<OrgBean> orgBeans = orgs.stream()
                 .map(o -> new OrgBean(o.getName(), o.getAlias(), getLogoUrl(o)))
-                .sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
+                .sorted(Comparator.comparing(OrgBean::getName))
                 .collect(Collectors.toList());
 
         form.setAttribute("organizations", orgBeans);

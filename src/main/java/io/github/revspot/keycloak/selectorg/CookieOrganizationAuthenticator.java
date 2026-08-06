@@ -7,7 +7,6 @@ import org.keycloak.authentication.AuthenticatorUtil;
 import org.keycloak.authentication.authenticators.util.AcrStore;
 import org.keycloak.authentication.authenticators.util.AuthenticatorUtils;
 import org.keycloak.models.*;
-import org.keycloak.organization.OrganizationProvider;
 import org.keycloak.organization.protocol.mappers.oidc.OrganizationScope;
 import org.keycloak.organization.utils.Organizations;
 import org.keycloak.protocol.LoginProtocol;
@@ -37,16 +36,16 @@ public class CookieOrganizationAuthenticator implements Authenticator {
             log.info("ATTEMPTED: missing AuthResult from cookie authentication");
             context.attempted();
         } else {
-            log.debug("session class: " + authResult.session().getClass().getName());
+            UserSessionModel userSession = authResult.session();
+            log.info("authenticate with cookie: " + (userSession != null && userSession.getUser() != null ? userSession.getUser().getUsername() : "(no username)"));
             AuthenticationSessionModel authSession = context.getAuthenticationSession();
             LoginProtocol protocol = context.getSession().getProvider(LoginProtocol.class, authSession.getProtocol());
-            log.debug("protocol class: " + protocol.getClass().getName());
-            authSession.setAuthNote(Constants.LOA_MAP, authResult.session().getNote(Constants.LOA_MAP));
+            authSession.setAuthNote(Constants.LOA_MAP, userSession.getNote(Constants.LOA_MAP));
             context.setUser(authResult.user());
             AcrStore acrStore = new AcrStore(context.getSession(), authSession);
 
             // Cookie re-authentication is skipped if re-authentication is required
-            if (protocol.requireReauthentication(authResult.session(), authSession)) {
+            if (protocol.requireReauthentication(userSession, authSession)) {
                 // Full re-authentication, so we start with no loa
                 acrStore.setLevelAuthenticatedToCurrentRequest(Constants.NO_LOA);
                 authSession.setAuthNote(AuthenticationManager.FORCED_REAUTHENTICATION, "true");
@@ -59,7 +58,7 @@ public class CookieOrganizationAuthenticator implements Authenticator {
             } else {
                 String topLevelFlowId = context.getTopLevelFlow().getId();
                 int previouslyAuthenticatedLevel = acrStore.getHighestAuthenticatedLevelFromPreviousAuthentication(topLevelFlowId);
-                AuthenticatorUtils.updateCompletedExecutions(context.getAuthenticationSession(), authResult.session(), context.getExecution().getId());
+                AuthenticatorUtils.updateCompletedExecutions(context.getAuthenticationSession(), userSession, context.getExecution().getId());
 
                 if (acrStore.getRequestedLevelOfAuthentication(context.getTopLevelFlow()) > previouslyAuthenticatedLevel) {
                     // Step-up authentication, we keep the loa from the existing user session.
@@ -77,15 +76,15 @@ public class CookieOrganizationAuthenticator implements Authenticator {
                     // Cookie only authentication
                     acrStore.setLevelAuthenticatedToCurrentRequest(previouslyAuthenticatedLevel);
                     authSession.setAuthNote(AuthenticationManager.SSO_AUTH, "true");
-                    context.attachUserSession(authResult.session());
+                    context.attachUserSession(userSession);
 
                     if (isOrganizationContext(context)) {
                         // Remark: original CookieAuthenticator would trigger re-authentication - this is the relevant change here
-                        log.info("Prev session notes: " + authResult.session().getNotes().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(", ")));
-                        String previousOrg = authResult.session().getNote("kc.org");
-                        if (previousOrg != null) {
-                            authSession.setAuthNote("kc.org", previousOrg);
-                            authSession.setClientNote("kc.org", previousOrg);
+                        log.info("Prev session notes: " + userSession.getNotes().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(", ")));
+                        String previousOrgId = OrganizationSessionHelper.getOrganizationId(userSession);
+                        String previousOrgName = OrganizationSessionHelper.getOrganizationName(userSession);
+                        if (previousOrgId != null && previousOrgName != null) {
+                            OrganizationSessionHelper.setSelectedOrganization(context, previousOrgId, previousOrgName);
                             log.info("SUCCESS: authentication for organization context ok");
                             context.success();
                         } else {

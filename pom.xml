@@ -6,7 +6,7 @@
 
     <groupId>io.github.revspot</groupId>
     <artifactId>keycloak-select-org-authenticator</artifactId>
-    <version>1.1.6</version>
+    <version>1.1.7</version>
     <packaging>jar</packaging>
 
     <name>Keycloak Select Organization Authenticator</name>
@@ -14,7 +14,7 @@
         A Keycloak Authenticator SPI that adds a post-login organization picker
         for users who belong to multiple Keycloak Organizations.
     </description>
-    <url>https://github.com/revspot/keycloak-select-org-authenticator</url>
+    <url>https://github.com/moost-io/keycloak-select-org-authenticator</url>
 
     <licenses>
         <license>
