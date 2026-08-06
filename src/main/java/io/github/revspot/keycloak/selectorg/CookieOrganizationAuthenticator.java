@@ -14,8 +14,6 @@ import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.messages.Messages;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
-import java.util.stream.Collectors;
-
 /**
  * Derived from org.keycloak.authentication.authenticators.browser.CookieAuthenticatorFactory
  */
@@ -37,7 +35,7 @@ public class CookieOrganizationAuthenticator implements Authenticator {
             context.attempted();
         } else {
             UserSessionModel userSession = authResult.session();
-            log.info("authenticate with cookie: " + (userSession != null && userSession.getUser() != null ? userSession.getUser().getUsername() : "(no username)"));
+            log.info("cookie authentication" + (userSession != null && userSession.getUser() != null ? " for user: " + userSession.getUser().getUsername() : ""));
             AuthenticationSessionModel authSession = context.getAuthenticationSession();
             LoginProtocol protocol = context.getSession().getProvider(LoginProtocol.class, authSession.getProtocol());
             authSession.setAuthNote(Constants.LOA_MAP, userSession.getNote(Constants.LOA_MAP));
@@ -53,8 +51,8 @@ public class CookieOrganizationAuthenticator implements Authenticator {
                 log.info("ATTEMPTED: requires reauthentication");
                 context.attempted();
             } else if(AuthenticatorUtil.isForkedFlow(authSession)){
-                context.attempted();
                 log.info("ATTEMPTED: forked flow");
+                context.attempted();
             } else {
                 String topLevelFlowId = context.getTopLevelFlow().getId();
                 int previouslyAuthenticatedLevel = acrStore.getHighestAuthenticatedLevelFromPreviousAuthentication(topLevelFlowId);
@@ -80,12 +78,11 @@ public class CookieOrganizationAuthenticator implements Authenticator {
 
                     if (isOrganizationContext(context)) {
                         // Remark: original CookieAuthenticator would trigger re-authentication - this is the relevant change here
-                        log.info("Prev session notes: " + userSession.getNotes().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(", ")));
                         String previousOrgId = OrganizationSessionHelper.getOrganizationId(userSession);
                         String previousOrgName = OrganizationSessionHelper.getOrganizationName(userSession);
                         if (previousOrgId != null && previousOrgName != null) {
                             OrganizationSessionHelper.setSelectedOrganization(context, previousOrgId, previousOrgName);
-                            log.info("SUCCESS: authentication for organization context ok");
+                            log.info("SUCCESS: authentication ok with organization " + previousOrgId + " - " + previousOrgName);
                             context.success();
                         } else {
                             log.info("ATTEMPTED: authentication for organization context failed, no previous org found");

@@ -1,11 +1,14 @@
 package io.github.revspot.keycloak.selectorg;
 
+import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.models.OrganizationModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
 public class OrganizationSessionHelper {
+
+    private static final Logger log = Logger.getLogger(OrganizationSessionHelper.class);
 
     static String getOrganizationId(UserSessionModel userSession) {
         return userSession.getNote(OrganizationModel.ORGANIZATION_ATTRIBUTE);
@@ -16,6 +19,7 @@ public class OrganizationSessionHelper {
     }
 
     static void setSelectedOrganization(AuthenticationFlowContext context, String orgId, String orgName) {
+        log.info("Select organization: " + orgId + " - " + orgName);
         AuthenticationSessionModel authSession = context.getAuthenticationSession();
         authSession.setAuthNote(OrganizationModel.ORGANIZATION_ATTRIBUTE, orgId);
         authSession.setClientNote(OrganizationModel.ORGANIZATION_ATTRIBUTE, orgId);
