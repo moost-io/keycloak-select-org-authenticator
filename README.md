@@ -107,7 +107,8 @@ Each `OrgBean` exposes:
 
 | Keycloak Version | Status |
 |------------------|--------|
-| 26.6.0           | Tested |
+| 26.8.2           | Tested |
+| 26.6.*         | Tested |
 | 26.x             | Should work |
 | 25.x             | Untested (Organizations API may differ) |
 | 27.x             | Should work |
