@@ -104,14 +104,23 @@ Each `OrgBean` exposes:
 | `kc.org.name` | authNote | Organization name | Available for custom mappers |
 
 ## Compatibility
+When upgrading Keycloak, check the compatibility of this plugin with the new version.
+
+Especially keep an eye on changes in Keycloak's CookieAuthenticator and Organization APIs, as they may affect the behavior of this plugin.
+
+Therefore keep classes in sync:
+
+| Keycloak Source Class | This Plugin Class |
+|----------------------|------------------|
+| org.keycloak.authentication.authenticators.browser.CookieAuthenticator | io.github.revspot.keycloak.selectorg.CookieOrganizationAuthenticator |
+| org.keycloak.authentication.authenticators.browser.CookieAuthenticatorFactory | io.github.revspot.keycloak.selectorg.CookieOrganizationAuthenticatorFactory |
+
+
 
 | Keycloak Version | Status |
 |------------------|--------|
 | 26.8.2           | Tested |
-| 26.6.*         | Tested |
-| 26.x             | Should work |
-| 25.x             | Untested (Organizations API may differ) |
-| 27.x             | Should work |
+
 
 ## License
 
